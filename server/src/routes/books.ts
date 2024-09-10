@@ -44,6 +44,7 @@ router.get('/', (req: Request, res: Response) => {
                 console.error('Query error: ', err);
                 return res.status(500).send('Internal server error');
             }
+            console.log(results)
             res.json({
                 books: results,
                 total: countResults[0].total
@@ -113,15 +114,13 @@ router.put('/update/:id', (req: Request, res: Response) => {
     const book: Book = req.body;
 
     if (!book.title || !book.author || !book.publication_year || !book.price) {
-        console.log(book)
         return res.status(400).send('All data are mandatory')
     }
-
-    const query = `
-        UPDATE books
-        SET title = ?, author = ?, publication_year = ?, price = ?
-        WHERE book_id = ?
-    `;
+    const query = 
+        'UPDATE books ' +
+        'SET title = ?, author = ?, publication_year = ?, price = ? ' +
+        'WHERE id = ?'
+    ;
 
     db.query(query, [book.title, book.author, book.publication_year, book.price, bookId], (err, results : ResultSetHeader) => {
         if (err) {
@@ -144,7 +143,7 @@ router.put('/update/:id', (req: Request, res: Response) => {
 router.delete('/remove/:id', (req: Request, res: Response) => {
     const bookId = req.params.id
 
-    const query = 'DELETE FROM books WHERE book_id = ?'
+    const query = 'DELETE FROM books WHERE id = ?'
 
     db.query(query, [bookId], (err, results : ResultSetHeader) => {
         if (err) {
