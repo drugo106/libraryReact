@@ -1,0 +1,6 @@
+.review-cell {
+    max-width: 200px; /* Imposta una larghezza massima per la colonna dei commenti */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal; /* Permette al testo di andare a capo */
+  }
