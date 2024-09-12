@@ -6,3 +6,11 @@ export interface Book {
     publication_year: string;
     price: string;
   }
+
+
+  export interface BookItem {
+    title: string;
+    author: string;
+    publication_year: string;
+    price: string;
+  }

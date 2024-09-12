@@ -1,27 +1,22 @@
 import React, { useState } from 'react';
+import {BookItem, Book} from '../../interfaces/Interfaces.ts'
 
 interface AddBookModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddBook: (
-    book: { 
-        title: string; 
-        author: string; 
-        review: string; 
-        publication_year: string; 
-        price: string }) => void;
+    book: BookItem) => void;
 }
 
 const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAddBook }) => {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
-  const [review, setReview] = useState('');
   const [publication_year, setPublicationYear] = useState('');
   const [price, setPrice] = useState('');
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const book = { title, author, review, publication_year, price };
+    const book = { title, author, publication_year, price };
     onAddBook(book);
     onClose();
   };
@@ -51,14 +46,6 @@ const AddBookModal: React.FC<AddBookModalProps> = ({ isOpen, onClose, onAddBook 
               onChange={(e) => setAuthor(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded"
               required
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Review</label>
-            <textarea
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded"
             />
           </div>
           <div className="mb-4">

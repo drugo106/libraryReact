@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Row from './Row';
 import AddBookModal from './modals/AddBookModal';
-import EditBookModal from './modals/EditBookModal'; // Importa il componente per modificare il libro
+import EditBookModal from './modals/EditBookModal'; 
 import '../styles/Row.css';
-import useWindowSize from '../hooks/WindowSize.tsx'; // Importa il tuo hook
+import useWindowSize from '../hooks/WindowSize.tsx'; 
 import {Book} from '../interfaces/Interfaces.ts'
 
 const Table: React.FC = () => {
@@ -24,7 +24,7 @@ const Table: React.FC = () => {
       setLoading(true);
       const response = await fetch('http://localhost:3001/api/books?pg='+pg * itemsPerPage+'&limit='+itemsPerPage);
       if (!response.ok) {
-        throw new Error('Errore nella richiesta');
+        throw new Error('Request error');
       }
       const data = await response.json();
       setBookData(data.books);
@@ -48,7 +48,7 @@ const Table: React.FC = () => {
     if (page > 0) setPage((prevPage) => prevPage - 1);
   };
 
-  const handleAddBook = async (book: { title: string; author: string; review: string; publication_year: string; price: string }) => {
+  const handleAddBook = async (book: Book) => {
     try {
       const response = await fetch('http://localhost:3001/api/books/add', {
         method: 'POST',
@@ -56,7 +56,7 @@ const Table: React.FC = () => {
         body: JSON.stringify(book),
       });
       if (!response.ok) {
-        throw new Error('Errore nella richiesta');
+        throw new Error('Request error');
       }
       setIsAddModalOpen(false);
       fetchBooks(page);
@@ -73,7 +73,7 @@ const Table: React.FC = () => {
         body: JSON.stringify(book),
       });
       if (!response.ok) {
-        throw new Error('Errore nella richiesta');
+        throw new Error('Request error');
       }
       setIsEditModalOpen(false);
       fetchBooks(page);
