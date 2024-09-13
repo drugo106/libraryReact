@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import mysql, { QueryResult, ResultSetHeader } from 'mysql2';
-import {Book} from '../interfaces/Interfaces.ts'
+import { Book } from '../interfaces/Interfaces.ts'
 
 const router = express.Router();
 
@@ -22,8 +22,69 @@ db.connect((err) => {
 
 ////// GET
 
+// Get Books with Filters
+router.get('/', (req: Request, res: Response) => {
+    const pg = parseInt(req.query.pg as string) || 0;
+    const limit = parseInt(req.query.limit as string) || 0;
+    const title = req.query.title as string || '';
+    const author = req.query.author as string || '';
+    const publicationYear = req.query.publication_year as string || '';
+    const price = req.query.price as string || '';
+
+    let query = 'SELECT * FROM books';
+    let conditions: string[] = [];
+    let queryParams: any[] = [];
+
+    if (title) {
+        conditions.push('title LIKE ?');
+        queryParams.push('%' + title + '%');
+    }
+
+    if (author) {
+        conditions.push('author LIKE ?');
+        queryParams.push('%' + author + '%');
+    }
+
+    if (publicationYear) {
+        conditions.push('publication_year = ?');
+        queryParams.push(publicationYear);
+    }
+
+    if (price) {
+        conditions.push('price = ?');
+        queryParams.push(price);
+    }
+
+    if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+    }
 
 
+    const countQuery = 'SELECT COUNT(*) AS total FROM ('+query+') AS filtered' ;
+    db.query(countQuery, queryParams, (err, countResults: any) => {
+        if (err) {
+            console.error('Query error: ', err);
+            return res.status(500).send('Internal server error');
+        }
+
+        // Get books for the current page with filters
+        query += ' LIMIT ? OFFSET ?';
+        queryParams.push(limit, pg);
+
+        db.query(query, queryParams, (err, results) => {
+            if (err) {
+                console.error('Query error: ', err);
+                return res.status(500).send('Internal server error');
+            }
+            res.json({
+                books: results,
+                total: countResults[0].total
+            });
+        });
+    });
+});
+
+/*
 //Get Books pg
 router.get('/', (req: Request, res: Response) => {
     const pg = parseInt(req.query.pg as string) || 0;
@@ -31,7 +92,7 @@ router.get('/', (req: Request, res: Response) => {
 
     // books count
     const countQuery = 'SELECT COUNT(*) AS total FROM books';
-    db.query(countQuery, (err, countResults : any) => {
+    db.query(countQuery, (err, countResults: any) => {
         if (err) {
             console.error('Query error: ', err);
             return res.status(500).send('Internal server error');
@@ -53,7 +114,9 @@ router.get('/', (req: Request, res: Response) => {
     });
 });
 
+*/
 
+/*
 //Get all books
 router.get('/', (req: Request, res: Response) => {
     console.log('Get all books')
@@ -81,7 +144,7 @@ router.get('/count', (req: Request, res: Response) => {
       
     });
   });
-  
+  */
 
 /////POST
 
@@ -90,7 +153,7 @@ router.post('/add', (req: Request, res: Response) => {
     const book: Book = req.body;
 
     if (!book.title || !book.author || !book.publication_year || !book.price) {
-        return res.status(400).send('Undefined data: ' + 
+        return res.status(400).send('Undefined data: ' +
             '\n\ttitle: ' + book.title + ' author: ' + book.author + '\n\tpublication_year: ' + book.publication_year + '\n\tprice: ' + book.price);
     }
 
@@ -116,13 +179,13 @@ router.put('/update/:id', (req: Request, res: Response) => {
     if (!book.title || !book.author || !book.publication_year || !book.price) {
         return res.status(400).send('All data are mandatory')
     }
-    const query = 
+    const query =
         'UPDATE books ' +
         'SET title = ?, author = ?, publication_year = ?, price = ? ' +
         'WHERE id = ?'
-    ;
+        ;
 
-    db.query(query, [book.title, book.author, book.publication_year, book.price, bookId], (err, results : ResultSetHeader) => {
+    db.query(query, [book.title, book.author, book.publication_year, book.price, bookId], (err, results: ResultSetHeader) => {
         if (err) {
             console.error('Query Error: ', err);
             return res.status(500).send('Internal server error');
@@ -145,7 +208,7 @@ router.delete('/remove/:id', (req: Request, res: Response) => {
 
     const query = 'DELETE FROM books WHERE id = ?'
 
-    db.query(query, [bookId], (err, results : ResultSetHeader) => {
+    db.query(query, [bookId], (err, results: ResultSetHeader) => {
         if (err) {
             console.error('Query Error: ', err);
             return res.status(500).send('Internal server error');
